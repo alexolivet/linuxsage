@@ -1,0 +1,866 @@
+#:kivy 2.3.0
+#:import dp kivy.metrics.dp
+
+#:set COLOR_BLACK (0, 0, 0, 1)
+#:set COLOR_WHITE (1, 1, 1, 1)
+
+# New palette (hex):
+# - #FDEB9E (soft yellow)
+# - #7AE2CF (mint)
+# - #077A7D (teal)
+# - #06202B (deep navy)
+#:set COLOR_BG (0.992, 0.922, 0.620, 1)          # #FDEB9E
+#:set COLOR_SURFACE (0.478, 0.886, 0.812, 1)     # #7AE2CF
+#:set COLOR_PRIMARY (0.027, 0.478, 0.490, 1)     # #077A7D
+#:set COLOR_DARK (0.024, 0.125, 0.169, 1)        # #06202B
+
+# App text + states
+#:set COLOR_TEXT COLOR_DARK
+#:set COLOR_TEXT_MUTED (0.024, 0.125, 0.169, 0.65)  # COLOR_DARK @ 65%
+#:set COLOR_SELECTED (0.478, 0.886, 0.812, 0.55)    # COLOR_SURFACE @ 55%
+#:set COLOR_ERROR (0.9, 0.2, 0.2, 1)
+
+# Backwards-compat alias (existing widgets still reference COLOR_YELLOW / COLOR_WARM_WHITE)
+#:set COLOR_YELLOW COLOR_PRIMARY
+#:set COLOR_WARM_WHITE COLOR_BG
+#:set COLOR_BACKGROUND COLOR_BG
+
+<AppRoot>:
+    # NOTE: Don't set `current` here because ScreenManager applies properties
+    # before adding children, which can raise "No Screen with name".
+    # SplashScreen is added first, so it becomes the default current screen.
+
+    SplashScreen:
+        name: "splash"
+
+    MainRoot:
+        name: "main"
+
+    Tab1Screen:
+        name: "tab1"
+
+    Tab2Screen:
+        name: "tab2"
+
+    Tab3Screen:
+        name: "tab3"
+
+    Tab4SearchScreen:
+        name: "tab4"
+    SettingsScreen:
+        name: "settings"
+
+
+<SplashScreen>:
+    md_bg_color: COLOR_WARM_WHITE
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "24dp"
+        spacing: "10dp"
+
+        # App name stays at the top of the splash page.
+        # We animate this text (and cursor) from Python (see app/screens/splash.py).
+        MDLabel:
+            id: header_label
+            text: ""  # will be typed letter-by-letter
+            markup: True
+            halign: "center"
+            font_style: "H4"
+            theme_text_color: "Custom"
+            text_color: COLOR_TEXT
+            font_name: "assets/fonts/Arcade.ttf"
+            size_hint_y: None
+            height: dp(56)
+
+        MDBoxLayout:
+            id: post_typing_box
+            orientation: "vertical"
+            size_hint_y: None
+            height: self.minimum_height
+            opacity: 0
+
+            MDLabel:
+                text: "Your command-line sidekick"
+                halign: "center"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT_MUTED
+                size_hint_y: None
+                height: self.texture_size[1]
+
+        # The logo is centered in the available middle space.
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "center"
+
+            Image:
+                source: app.splash_logo_path
+                size_hint: None, None
+                size: dp(240), dp(240)
+                fit_mode: "contain"
+                opacity: 1 if self.source else 0
+
+        MDRaisedButton:
+            text: "OPEN APP"
+            size_hint_x: 1
+            size_hint_y: None
+            height: "56dp"
+            md_bg_color: COLOR_PRIMARY
+            theme_text_color: "Custom"
+            text_color: COLOR_BG
+            on_release: app.open_main()
+
+
+<MainRoot>:
+    md_bg_color: COLOR_BG
+
+    MDBoxLayout:
+        orientation: "vertical"
+        md_bg_color: COLOR_BG
+
+        # Shared top header shown above every tab.
+        # Logo is now top-left and aligned with the app name.
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(64)
+            padding: dp(16), 0, dp(8), 0
+            spacing: dp(10)
+            md_bg_color: COLOR_BG
+
+            Image:
+                source: app.logo_path
+                size_hint: None, None
+                size: dp(32), dp(32)
+                fit_mode: "contain"
+                opacity: 1 if self.source else 0
+                pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                text: "The Linux Sage"
+                font_style: "H5"
+                font_name: "assets/fonts/Arcade.ttf"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                size_hint_y: None
+                height: dp(32)
+                pos_hint: {"center_y": 0.5}
+
+            MDIconButton:
+                icon: "restart"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                pos_hint: {"center_y": 0.5}
+                on_release: app.go_to_splash()
+
+        MDGridLayout:
+            cols: 2
+            rows: 2
+            spacing: dp(36)
+            padding: dp(48)
+            size_hint: 1, 1
+
+            MDRaisedButton:
+                text: "About"
+                font_style: "H5"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint: 1, 1
+                on_release: app.root.current = "tab1"
+
+            MDRaisedButton:
+                text: "News"
+                font_style: "H5"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint: 1, 1
+                on_release: app.root.current = "tab2"
+
+            MDRaisedButton:
+                text: "Chat"
+                font_style: "H5"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint: 1, 1
+                on_release: app.root.current = "tab3"
+
+            MDRaisedButton:
+                text: "Lookup"
+                font_style: "H5"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint: 1, 1
+                on_release: app.root.current = "tab4"
+
+        # Disclaimer shown throughout the app
+        MDBoxLayout:
+            id: disclaimer_box
+            size_hint_y: None
+            padding: dp(12), dp(8)
+            height: disclaimer_label.texture_size[1] + dp(16)
+            md_bg_color: COLOR_BG
+
+            MDLabel:
+                id: disclaimer_label
+                text: "Legal Disclaimer: Linux® is the registered trademark of Linus Torvalds in the U.S. and other countries. This app is an independent helpdesk utility and is not affiliated with, sponsored by, or endorsed by Linus Torvalds or the Linux Foundation."
+                halign: "center"
+                valign: "middle"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT_MUTED
+                font_style: "Caption"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+
+
+<Tab1Screen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "16dp"
+        spacing: "16dp"
+        md_bg_color: COLOR_BG
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(8)
+
+            MDRaisedButton:
+                text: "Back to Menu"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint_y: None
+                height: dp(50)
+                on_release: app.root.current = "main"
+            Widget:
+            MDRaisedButton:
+                text: "Settings"
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                size_hint_y: None
+                height: dp(50)
+                on_release: root.open_settings()
+
+        MDCard:
+            size_hint_y: None
+            height: title_label.texture_size[1] + dp(24)
+            padding: "12dp"
+            radius: [16, 16, 16, 16]
+            elevation: 0.5
+            md_bg_color: COLOR_PRIMARY
+
+            MDLabel:
+                id: title_label
+                text: "[b]{} • {}[/b]".format(root.slide_id, root.slide_title)
+                markup: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+
+        ScrollView:
+            do_scroll_x: False
+
+            MDCard:
+                size_hint_y: None
+                height: content_label.texture_size[1] + dp(32)
+                padding: "12dp"
+                radius: [12, 12, 12, 12]
+                elevation: 1
+                md_bg_color: COLOR_SURFACE
+
+                MDLabel:
+                    id: content_label
+                    text: root.slide_content
+                    markup: True
+                    halign: "center"
+                    valign: "top"
+                    text_size: self.width, None
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+
+<SettingsScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "16dp"
+        spacing: "16dp"
+        md_bg_color: COLOR_BG
+
+        # Header row
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(8)
+
+            MDIconButton:
+                icon: "arrow-left"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                on_release: root.go_back()
+
+            MDLabel:
+                text: "Settings"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+
+            Widget:
+
+        MDCard:
+            orientation: "vertical"
+            padding: dp(12)
+            spacing: dp(12)
+            radius: [12, 12, 12, 12]
+            elevation: 1
+            md_bg_color: COLOR_SURFACE
+            size_hint_y: None
+            height: self.minimum_height
+
+            MDLabel:
+                text: "News Feed Source"
+                font_style: "H6"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDDropDownItem:
+                id: feed_dropdown
+                text: root.selected_feed_name
+                on_release: root.open_feed_menu()
+
+            MDLabel:
+                text: "Chat Settings"
+                font_style: "H6"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: dp(50)
+                spacing: dp(8)
+
+                MDRaisedButton:
+                    text: "Refresh DB"
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    size_hint_x: 1
+                    on_release: root.reset_database()
+
+                MDRaisedButton:
+                    text: "Reset Model"
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    size_hint_x: 1
+                    on_release: root.reset_model()
+
+                MDRaisedButton:
+                    text: "Clear Chat"
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    size_hint_x: 1
+                    on_release: root.clear_chat()
+
+            MDLabel:
+                text: "After resetting the model, open the Chat tab and download the model again."
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT_MUTED
+                halign: "center"
+                font_style: "Caption"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+
+        Widget:
+            size_hint_y: 1
+
+
+<Tab2Screen>:
+    on_kv_post: root.on_view_ready()
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "16dp"
+        spacing: "12dp"
+        md_bg_color: COLOR_BG
+
+        MDRaisedButton:
+            text: "Back to Menu"
+            md_bg_color: COLOR_PRIMARY
+            theme_text_color: "Custom"
+            text_color: COLOR_BG
+            size_hint_y: None
+            height: dp(50)
+            on_release: app.root.current = "main"
+
+        # Title + status grouped in a rounded card
+        MDCard:
+            orientation: "vertical"
+            padding: dp(12)
+            spacing: dp(6)
+            size_hint_y: None
+            height: self.minimum_height
+            radius: [12, 12, 12, 12]
+            elevation: 0.5
+            md_bg_color: COLOR_SURFACE
+
+            MDLabel:
+                text: (root.feed_name or "News") + " (RSS)"
+                font_style: "H5"
+                font_name: "assets/fonts/Arcade.ttf"
+                halign: "center"
+                valign: "middle"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: self.minimum_height
+
+                MDLabel:
+                    text: root.status_text
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT_MUTED
+                    halign: "left"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width, None
+
+                Widget:
+
+                MDLabel:
+                    text: root.position_text
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT_MUTED
+                    halign: "right"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width, None
+
+        # Controls are in a separate rounded card (as requested)
+        MDCard:
+            padding: dp(8)
+            size_hint_y: None
+            height: dp(56)
+            radius: [12, 12, 12, 12]
+            elevation: 0.5
+            md_bg_color: COLOR_SURFACE
+
+            MDBoxLayout:
+                spacing: dp(8)
+
+                Widget:
+
+                MDIconButton:
+                    icon: "open-in-new"
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    disabled: not root.current_link
+                    on_release: root.open_current_article()
+
+                MDIconButton:
+                    icon: "skip-next"
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    disabled: not root.items
+                    on_release: root.next_article()
+
+                MDIconButton:
+                    icon: "refresh"
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    on_release: root.refresh()
+
+                Widget:
+
+        # Removed the separate loading and error boxes.
+        # Indicators and errors are now handled within the article display or status bar.
+        # Article (single item) in a scroll view
+        ScrollView:
+            do_scroll_x: False
+            # Removed padding from ScrollView to reduce vertical space
+            # padding: 0, 0, 0, 0
+
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "10dp"  # Reduced spacing slightly
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "14dp"
+                    spacing: "10dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    radius: [12, 12, 12, 12] # Round edges for cards
+                    elevation: 1
+                    md_bg_color: COLOR_SURFACE
+
+                    # Display loading/error within the article card if needed
+                    MDBoxLayout:
+                        id: article_status_box
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: self.minimum_height if root.is_loading or root.has_error else 0
+                        opacity: 1 if root.is_loading or root.has_error else 0
+                        padding: "12dp"
+                        spacing: "10dp"
+
+                        MDLabel:
+                            id: article_status_label
+                            text: "Fetching RSS feed..." if root.is_loading else root.error_text
+                            theme_text_color: "Custom"
+                            text_color: COLOR_TEXT if root.is_loading else COLOR_ERROR
+                            halign: "center"
+                            valign: "middle"
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            text_size: self.width, None
+
+                        MDSpinner:
+                            active: root.is_loading
+                            size_hint: None, None
+                            size: "24dp", "24dp"
+                            pos_hint: {"center_x": 0.5}
+                            opacity: 1 if root.is_loading else 0
+
+                    MDLabel:
+                        text: root.current_title or ""
+                        font_style: "H5"  # Main header size
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        text_size: self.width, None
+
+                    MDLabel:
+                        text: (root.current_pub_date or "") + ("\n" + "By: " + root.current_author if root.current_author else "")
+                        font_style: "Subtitle1" # Subheader size (16dp)
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT_MUTED
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        text_size: self.width, None
+
+                    MDLabel:
+                        text: ("Categories: " + root.current_categories) if root.current_categories else ""
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT_MUTED
+                        size_hint_y: None
+                        height: self.texture_size[1] if self.text else 0
+                        text_size: self.width, None
+
+                    MDLabel:
+                        text: ("GUID: " + root.current_guid) if root.current_guid else ""
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT_MUTED
+                        font_style: "Caption"
+                        size_hint_y: None
+                        height: self.texture_size[1] if self.text else 0
+                        text_size: self.width, None
+
+                    MDLabel:
+                        text: root.current_summary
+                        font_style: "Body1" # Standard text size (14dp)
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT
+                        size_hint_y: None
+                        height: self.texture_size[1] if self.text else 0
+                        text_size: self.width, None
+
+                    MDSeparator:
+                        height: "1dp"
+                        color: COLOR_BACKGROUND
+
+                    MDLabel:
+                        text: root.current_body
+                        font_style: "Body1" # Standard text size (14dp)
+                        theme_text_color: "Custom"
+                        text_color: COLOR_TEXT
+                        size_hint_y: None
+                        height: self.texture_size[1] if self.text else 0
+                        text_size: self.width, None
+
+                Widget:
+                    size_hint_y: None
+                    height: "12dp" # Keep a small bottom padding for the last card
+
+
+<Tab3Screen>:
+    on_kv_post: root.on_view_ready()
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: dp(12)
+        spacing: dp(10)
+        md_bg_color: COLOR_BG
+
+        MDRaisedButton:
+            text: "Back to Menu"
+            md_bg_color: COLOR_PRIMARY
+            theme_text_color: "Custom"
+            text_color: COLOR_BG
+            size_hint_y: None
+            height: dp(50)
+            on_release: app.root.current = "main"
+
+        MDCard:
+            orientation: "vertical"
+            padding: dp(12)
+            spacing: dp(10)
+            size_hint_y: None
+            height: self.minimum_height
+            radius: [12, 12, 12, 12]
+            elevation: 0.5
+            md_bg_color: COLOR_SURFACE
+
+            MDLabel:
+                id: status_label
+                text: root.status_text
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT_MUTED
+                halign: "left"
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+
+                MDRaisedButton:
+                    id: model_btn
+                    text: "Model: " + root.selected_model
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    disabled: True
+
+                MDRaisedButton:
+                    id: token_btn
+                    text: "Tokens: " + root.token_text
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    on_release: root.open_token_menu()
+
+                MDIconButton:
+                    icon: "download"
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    disabled: root.is_busy
+                    on_release: root.download_default_model()
+
+                Widget:
+
+                MDIconButton:
+                    icon: "delete-sweep"
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    disabled: root.is_busy
+                    on_release: root.new_chat()
+
+                MDIconButton:
+                    icon: "stop"
+                    theme_text_color: "Custom"
+                    text_color: COLOR_TEXT
+                    disabled: not root.is_busy
+                    on_release: root.stop_generation()
+
+        ScrollView:
+            id: chat_scroll
+            do_scroll_x: False
+
+            MDBoxLayout:
+                id: chat_box
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(10)
+                padding: 0, dp(10)
+
+        MDCard:
+            padding: dp(10)
+            size_hint_y: None
+            height: dp(72)
+            radius: [12, 12, 12, 12]
+            elevation: 0.5
+            md_bg_color: COLOR_SURFACE
+
+            MDBoxLayout:
+                spacing: dp(10)
+
+                MDTextField:
+                    id: input_field
+                    hint_text: "Ask a question (offline)…"
+                    mode: "rectangle"
+                    multiline: False
+                    text_color_normal: COLOR_TEXT
+                    text_color_focus: COLOR_TEXT
+                    hint_text_color_normal: COLOR_TEXT_MUTED
+                    hint_text_color_focus: COLOR_TEXT_MUTED
+                    line_color_normal: (0, 0, 0, 0.25)
+                    line_color_focus: COLOR_PRIMARY
+                    on_text_validate: root.send_message()
+
+                MDRaisedButton:
+                    id: clear_btn
+                    text: "Clear"
+                    size_hint_x: None
+                    width: dp(110)
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    disabled: root.is_busy
+                    on_release: root.new_chat()
+
+                MDRaisedButton:
+                    id: send_btn
+                    text: "Send"
+                    size_hint_x: None
+                    width: dp(110)
+                    md_bg_color: COLOR_PRIMARY
+                    theme_text_color: "Custom"
+                    text_color: COLOR_BG
+                    disabled: root.is_busy
+                    on_release: root.send_message()
+
+<Tab4SearchScreen>:
+    on_kv_post: root.on_view_ready()
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "16dp"
+        spacing: "12dp"
+        md_bg_color: COLOR_BG
+
+        MDRaisedButton:
+            text: "Back to Menu"
+            md_bg_color: COLOR_PRIMARY
+            theme_text_color: "Custom"
+            text_color: COLOR_BG
+            size_hint_y: None
+            height: dp(50)
+            on_release: app.root.current = "main"
+
+        # Status / health
+        MDLabel:
+            id: status_label
+            text: root.status_text
+            theme_text_color: "Custom"
+            text_color: COLOR_TEXT
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        # Loading indicator
+        MDBoxLayout:
+            id: loading_box
+            size_hint_y: None
+            height: "28dp"
+            opacity: 1 if root.is_initializing else 0
+            disabled: not root.is_initializing
+            spacing: "12dp"
+
+            MDSpinner:
+                size_hint: None, None
+                size: "24dp", "24dp"
+                active: root.is_initializing
+            MDLabel:
+                text: "Initializing database..."
+                valign: "middle"
+                theme_text_color: "Custom"
+                text_color: COLOR_TEXT
+
+        # Error box
+        MDBoxLayout:
+            id: error_box
+            orientation: "vertical"
+            padding: "12dp"
+            spacing: "8dp"
+            size_hint_y: None
+            height: self.minimum_height
+            opacity: 1 if root.has_error else 0
+            disabled: not root.has_error
+            md_bg_color: COLOR_SURFACE
+
+            MDLabel:
+                id: error_label
+                text: root.error_text
+                theme_text_color: "Custom"
+                text_color: COLOR_ERROR
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Retry"
+                size_hint_x: None
+                width: "140dp"
+                pos_hint: {"center_x": 0.5}
+                md_bg_color: COLOR_PRIMARY
+                theme_text_color: "Custom"
+                text_color: COLOR_BG
+                on_release: root.retry_init()
+
+        # Search input
+        MDTextField:
+            id: search_field
+            hint_text: "Search commands/ descriptions / categories (e.g., grep, permissions)"
+            mode: "rectangle"
+            disabled: not root.is_ready
+            text_color_normal: COLOR_TEXT
+            text_color_focus: COLOR_TEXT
+            hint_text_color_normal: COLOR_TEXT_MUTED
+            hint_text_color_focus: COLOR_TEXT_MUTED
+            line_color_normal: (0, 0, 0, 0.25)
+            line_color_focus: COLOR_PRIMARY
+            on_text: root.on_search_text(self.text)
+
+        # Messages
+        MDLabel:
+            id: message_label
+            text: root.message_text
+            theme_text_color: "Custom"
+            text_color: COLOR_TEXT_MUTED
+            halign: "center"
+            size_hint_y: None
+            height: self.texture_size[1] if self.text else 0
+
+        # Results
+        ScrollView:
+            do_scroll_x: False
+
+            MDList:
+                id: results_list
+

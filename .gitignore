@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env
+.env.local
+*.egg-info/
+dist/
+build/
+
+# Kivy / Buildozer
+bin/
+*.apk
+*.aab
+*.tup
+*.pyc
+*.log
+*.tmp
+
+# Android / Buildozer
+*.keystore
+*.debug
+*.release
+*.keystore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assets (optional - keep or exclude based on size)
+# assets/fonts/
+# assets/images/.buildozer/
+.buildozer/

@@ -1,0 +1,11 @@
+--- a/bindings/python/pyproject.toml
++++ b/bindings/python/pyproject.toml
+@@ -23,7 +23,7 @@
+ ]
+ keywords = ["NLP", "tokenizer", "BPE", "transformer", "deep learning"]
+ dynamic = ["description", "license", "readme", "version"]
+-dependencies = ["huggingface_hub>=0.16.4,<2.0"]
++dependencies = []
+ 
+ [project.urls]
+ Homepage = "https://github.com/huggingface/tokenizers"
